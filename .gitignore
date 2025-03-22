@@ -1,0 +1,54 @@
+# Python虚拟环境
+venv/
+env/
+ENV/
+
+# Python编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 实例文件和数据库
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# 日志文件
+*.log
+
+# IDE相关
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# 环境变量
+.env
+.flaskenv
+
+# 临时文件
+temp/
+tmp/
+
+# 系统文件
+.DS_Store
+Thumbs.db 

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-md-10 text-center">
+        <h1 class="display-4 mb-3 fw-bold">轻松管理学习成绩，<span class="text-primary">见证进步</span></h1>
+        <p class="lead mb-4">这是一个帮助您记录和分析考试成绩的系统，直观展示学习进步情况，助您更好地规划学习方向。</p>
+        
+        {% if not current_user.is_authenticated %}
+        <div class="d-grid gap-3 d-md-block mb-5">
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 py-2 mx-2 shadow-sm">
+                <i class="fas fa-sign-in-alt me-2"></i>登录账号
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg px-4 py-2 mx-2">
+                <i class="fas fa-user-plus me-2"></i>注册账号
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-4 mx-auto" style="width: 65px; height: 65px;">
+                    <i class="fas fa-edit fa-2x"></i>
+                </div>
+                <h3 class="h5 card-title">成绩记录</h3>
+                <p class="card-text">方便快捷地记录各科考试成绩，支持添加考试日期和备注信息，全面记录学习数据。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon bg-success bg-gradient text-white rounded-circle p-3 mb-4 mx-auto" style="width: 65px; height: 65px;">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+                <h3 class="h5 card-title">成绩分析</h3>
+                <p class="card-text">自动生成成绩统计图表，直观展示学习进步情况，发现学习规律，找到提高方向。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon bg-info bg-gradient text-white rounded-circle p-3 mb-4 mx-auto" style="width: 65px; height: 65px;">
+                    <i class="fas fa-file-export fa-2x"></i>
+                </div>
+                <h3 class="h5 card-title">数据导出</h3>
+                <p class="card-text">支持导出成绩报告，方便与老师和家长分享学习情况，及时了解学习进度和成果。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <div class="card bg-light border-0">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="h4">开始记录您的学习成长历程</h3>
+                        <p class="mb-0">登录系统，记录每一次考试成绩，见证自己的进步。每一分的提升，都是努力的见证！</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="{{ url_for('register' if not current_user.is_authenticated else 'dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>{{ '开始使用' if not current_user.is_authenticated else '前往仪表板' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 添加简单的页面加载动画效果
+    const elements = document.querySelectorAll('.card, .btn, h1, .lead');
+    elements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
+        
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, 100);
+    });
+});
+</script>
+{% endblock %} 

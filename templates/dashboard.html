@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}仪表板{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-chart-bar me-2"></i>成绩概览</h2>
+            <a href="{{ url_for('add_score') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>添加成绩
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 数据统计卡片 -->
+{% if scores %}
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="card-subtitle text-muted">总记录数</h6>
+                    <div class="bg-primary text-white rounded-circle p-2">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
+                <h3 class="card-title mb-0">{{ scores|length }}</h3>
+                <p class="card-text text-success mt-2 mb-0"><i class="fas fa-clock me-1"></i>条成绩记录</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="card-subtitle text-muted">平均分</h6>
+                    <div class="bg-success text-white rounded-circle p-2">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                </div>
+                <h3 class="card-title mb-0">{{ (scores|map(attribute='score')|sum / scores|length)|round(1) }}</h3>
+                <p class="card-text text-primary mt-2 mb-0"><i class="fas fa-chart-line me-1"></i>所有科目平均</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="card-subtitle text-muted">最高分</h6>
+                    <div class="bg-warning text-white rounded-circle p-2">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
+                <h3 class="card-title mb-0">{{ scores|map(attribute='score')|max }}</h3>
+                <p class="card-text text-warning mt-2 mb-0"><i class="fas fa-star me-1"></i>最佳成绩</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="card-subtitle text-muted">科目数</h6>
+                    <div class="bg-info text-white rounded-circle p-2">
+                        <i class="fas fa-book"></i>
+                    </div>
+                </div>
+                <h3 class="card-title mb-0">{{ scores|map(attribute='subject')|unique|list|length }}</h3>
+                <p class="card-text text-info mt-2 mb-0"><i class="fas fa-list me-1"></i>不同科目</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 图表部分 -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>成绩趋势图</h5>
+            </div>
+            <div class="card-body">
+                {% if scores %}
+                <canvas id="scoreChart"></canvas>
+                {% else %}
+                <div class="empty-state py-5">
+                    <i class="fas fa-chart-bar text-muted mb-3"></i>
+                    <h5>暂无成绩数据</h5>
+                    <p class="text-muted">添加您的第一条成绩记录，开始追踪学习进步！</p>
+                    <a href="{{ url_for('add_score') }}" class="btn btn-primary btn-sm mt-3">
+                        <i class="fas fa-plus me-2"></i>添加成绩
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 成绩记录表格 -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-list-alt me-2"></i>成绩记录</h5>
+                {% if scores %}
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-download me-1"></i>导出
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('export_excel') }}"><i class="fas fa-file-excel me-2"></i>导出为Excel</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('export_pdf') }}"><i class="fas fa-file-pdf me-2"></i>导出为PDF</a></li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>科目</th>
+                                <th>分数</th>
+                                <th>考试日期</th>
+                                <th>备注</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for score in scores %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ score.subject }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ score.score }}</strong>
+                                    {% set max_score = 120 if score.subject in ['语文', '数学', '英语'] else 100 %}
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar {{ 'bg-success' if score.score >= max_score * 0.85 else 'bg-primary' }}" 
+                                             role="progressbar" 
+                                             style="width: {{ (score.score / max_score * 100)|round }}%;"
+                                             aria-valuenow="{{ score.score }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="{{ max_score }}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ score.exam_date }}</td>
+                                <td>{{ score.remarks }}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary edit-score-btn" 
+                                            data-id="{{ score.id }}"
+                                            data-subject="{{ score.subject }}"
+                                            data-score="{{ score.score }}"
+                                            data-exam-date="{{ score.exam_date }}"
+                                            data-remarks="{{ score.remarks }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-score-btn"
+                                            data-id="{{ score.id }}"
+                                            data-subject="{{ score.subject }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-clipboard text-muted"></i>
+                                        <p class="mt-3 mb-0">暂无成绩记录</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 修改成绩模态框 -->
+<div class="modal fade" id="editScoreModal" tabindex="-1" aria-labelledby="editScoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editScoreModalLabel"><i class="fas fa-edit me-2"></i>修改成绩</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editScoreForm" action="{{ url_for('edit_score') }}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="edit-score-id" name="score_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit-subject" class="form-label">科目</label>
+                        <select class="form-select" id="edit-subject" name="subject" required>
+                            <option value="语文">语文</option>
+                            <option value="数学">数学</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                            <option value="生物">生物</option>
+                            <option value="历史">历史</option>
+                            <option value="地理">地理</option>
+                            <option value="政治">政治</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-score" class="form-label">分数</label>
+                        <input type="number" class="form-control" id="edit-score" name="score" min="0" max="120" required>
+                        <div class="form-text">语文、数学、英语满分为120分，其他科目满分为100分</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-exam-date" class="form-label">考试日期</label>
+                        <input type="date" class="form-control" id="edit-exam-date" name="exam_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-remarks" class="form-label">备注</label>
+                        <textarea class="form-control" id="edit-remarks" name="remarks" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 删除成绩确认模态框 -->
+<div class="modal fade" id="deleteScoreModal" tabindex="-1" aria-labelledby="deleteScoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteScoreModalLabel"><i class="fas fa-exclamation-triangle text-danger me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要删除这条<span id="delete-subject-name" class="fw-bold"></span>成绩记录吗？</p>
+                <p class="text-danger small">此操作不可撤销！</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form id="deleteScoreForm" action="{{ url_for('delete_score') }}" method="post">
+                    <input type="hidden" id="delete-score-id" name="score_id">
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scoresData = {{ scores|tojson|safe }};
+    if (scoresData && scoresData.length > 0) {
+        // 设置Chart.js默认配置
+        Chart.defaults.font.family = "'Segoe UI', 'Arial', sans-serif";
+        Chart.defaults.color = '#6c757d';
+        
+        const subjects = [...new Set(scoresData.map(s => s.subject))];
+        const datasets = subjects.map(subject => {
+            const subjectScores = scoresData
+                .filter(s => s.subject === subject)
+                .sort((a, b) => new Date(a.exam_date) - new Date(b.exam_date));
+            
+            const color = getRandomColor();
+            
+            return {
+                label: subject,
+                data: subjectScores.map(s => s.score),
+                borderColor: color,
+                backgroundColor: color + '20',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
+            };
+        });
+
+        // 获取所有日期并排序
+        const dates = [...new Set(scoresData.map(s => s.exam_date))].sort((a, b) => new Date(a) - new Date(b));
+
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    title: {
+                        display: false,
+                    },
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                const maxScore = ['语文', '数学', '英语'].includes(label) ? 120 : 100;
+                                return `${label}: ${value}分 (满分${maxScore}分)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y120: {
+                        position: 'left',
+                        beginAtZero: true,
+                        max: 120,
+                        title: {
+                            display: true,
+                            text: '语数英分数 (满分120)'
+                        },
+                        grid: {
+                            color: '#f0f0f0'
+                        }
+                    },
+                    y100: {
+                        position: 'right',
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '其他科目分数 (满分100)'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 添加简单的页面加载动画效果
+        const elements = document.querySelectorAll('.card');
+        elements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = `opacity 0.4s ease ${index * 0.1}s, transform 0.4s ease ${index * 0.1}s`;
+            
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    }
+    
+    // 修改成绩按钮点击事件
+    const editButtons = document.querySelectorAll('.edit-score-btn');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const subject = this.getAttribute('data-subject');
+            const score = this.getAttribute('data-score');
+            const examDate = this.getAttribute('data-exam-date');
+            const remarks = this.getAttribute('data-remarks');
+            
+            // 填充模态框表单
+            document.getElementById('edit-score-id').value = id;
+            document.getElementById('edit-subject').value = subject;
+            document.getElementById('edit-score').value = score;
+            document.getElementById('edit-exam-date').value = examDate;
+            document.getElementById('edit-remarks').value = remarks;
+            
+            // 根据科目调整分数上限
+            const scoreInput = document.getElementById('edit-score');
+            if(['语文', '数学', '英语'].includes(subject)) {
+                scoreInput.setAttribute('max', '120');
+            } else {
+                scoreInput.setAttribute('max', '100');
+            }
+            
+            // 显示模态框
+            const editModal = new bootstrap.Modal(document.getElementById('editScoreModal'));
+            editModal.show();
+        });
+    });
+    
+    // 科目选择改变时调整分数上限
+    document.getElementById('edit-subject').addEventListener('change', function() {
+        const scoreInput = document.getElementById('edit-score');
+        if(['语文', '数学', '英语'].includes(this.value)) {
+            scoreInput.setAttribute('max', '120');
+            if(parseFloat(scoreInput.value) > 120) {
+                scoreInput.value = 120;
+            }
+        } else {
+            scoreInput.setAttribute('max', '100');
+            if(parseFloat(scoreInput.value) > 100) {
+                scoreInput.value = 100;
+            }
+        }
+    });
+    
+    // 删除成绩按钮点击事件
+    const deleteButtons = document.querySelectorAll('.delete-score-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const subject = this.getAttribute('data-subject');
+            
+            // 填充模态框内容
+            document.getElementById('delete-score-id').value = id;
+            document.getElementById('delete-subject-name').textContent = subject;
+            
+            // 显示模态框
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteScoreModal'));
+            deleteModal.show();
+        });
+    });
+});
+
+function getRandomColor() {
+    const colors = [
+        '#4361ee', '#3a0ca3', '#7209b7', '#f72585', 
+        '#4cc9f0', '#4895ef', '#560bad', '#f3722c', 
+        '#f8961e', '#90be6d', '#43aa8b', '#577590'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+</script>
+{% endblock %} 

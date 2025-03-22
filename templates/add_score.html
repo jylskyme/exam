@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}添加成绩{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">添加成绩记录</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">科目</label>
+                        <select class="form-select" id="subject" name="subject" required onchange="updateScoreMax()">
+                            <option value="">请选择科目</option>
+                            <option value="语文">语文</option>
+                            <option value="数学">数学</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                            <option value="生物">生物</option>
+                            <option value="历史">历史</option>
+                            <option value="地理">地理</option>
+                            <option value="政治">政治</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="score" class="form-label">分数</label>
+                        <input type="number" class="form-control" id="score" name="score" min="0" max="120" required>
+                        <div class="form-text" id="scoreHelp">语文、数学、英语满分为120分，其他科目满分为100分</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exam_date" class="form-label">考试日期</label>
+                        <input type="date" class="form-control" id="exam_date" name="exam_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">备注</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="3" placeholder="例如：期中考试、单元测验等"></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateScoreMax() {
+    const subject = document.getElementById('subject').value;
+    const scoreInput = document.getElementById('score');
+    
+    if (['语文', '数学', '英语'].includes(subject)) {
+        scoreInput.max = 120;
+    } else {
+        scoreInput.max = 100;
+        // 如果当前输入值超过100分且科目不是语数英，则将值重置为100
+        if (scoreInput.value > 100) {
+            scoreInput.value = 100;
+        }
+    }
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function() {
+    updateScoreMax();
+});
+</script>
+{% endblock %} 
