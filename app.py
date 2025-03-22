@@ -26,9 +26,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_hex(16)
 if not os.path.exists('instance'):
     os.makedirs('instance')
 
-# 设置数据库路径
-db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'scores.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+# 设置数据库连接
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "instance", "exam.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 初始化数据库
@@ -41,7 +41,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(255))
     scores = db.relationship('Score', backref='user', lazy=True)
 
     def set_password(self, password):
@@ -458,9 +458,13 @@ def export_pdf():
         mimetype='application/pdf'
     )
 
-# 创建数据库表
-with app.app_context():
-    db.create_all()
-
+# 当直接运行app.py时执行的代码
 if __name__ == '__main__':
-    app.run(debug=True) 
+    with app.app_context():
+        db.create_all()  # 创建所有数据库表
+    app.run(debug=True)
+# 当作为模块导入时执行的代码（用于uwsgi启动）
+else:
+    # 确保数据库表存在
+    with app.app_context():
+        db.create_all()
