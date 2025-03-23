@@ -78,17 +78,23 @@
     {% endif %}
 
     <!-- 成绩趋势图上方的科目筛选部分 -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">成绩趋势图</h5>
-        </div>
-        <div class="card-body" style="padding: 10px; min-height: 500px;">
-            <!-- 科目筛选区域 -->
-            <div id="subject-filter-area" style="margin-bottom: 15px;"></div>
-            
-            <!-- 调整图表容器，确保宽度最大化 -->
-            <div style="height: 420px; width: 100%; max-width: none; overflow-x: hidden;">
-                <canvas id="scoreChart"></canvas>
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">成绩趋势图</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 科目选择过滤器 -->
+                    <div class="subject-filter-container">
+                        <!-- ... existing code ... -->
+                    </div>
+                    
+                    <!-- 图表容器，设置最小高度确保图表显示合适 -->
+                    <div class="chart-container" style="position: relative; width: 100%; min-height: 400px;">
+                        <canvas id="scoreChart" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -433,17 +439,29 @@ document.addEventListener('DOMContentLoaded', function() {
         Chart.defaults.font.family = "'Segoe UI', 'Arial', sans-serif";
         Chart.defaults.color = '#6c757d';
         
+        // 构建数据集
         const subjects = [...new Set(scoresData.map(s => s.subject))];
-        const datasets = subjects.map(subject => {
+        const datasets = [];
+        
+        // 获取所有日期并排序
+        const allDates = [...new Set(scoresData.map(s => s.exam_date))].sort((a, b) => new Date(a) - new Date(b));
+        
+        // 为每个科目构建数据集
+        subjects.forEach(subject => {
             const subjectScores = scoresData
                 .filter(s => s.subject === subject)
                 .sort((a, b) => new Date(a.exam_date) - new Date(b.exam_date));
             
-            const color = getRandomColor();
+            // 跳过没有数据的科目
+            if (subjectScores.length === 0) return;
             
-            return {
+            const color = getRandomColor();
+            datasets.push({
                 label: subject,
-                data: subjectScores.map(s => s.score),
+                data: subjectScores.map(s => ({
+                    x: s.exam_date,
+                    y: parseFloat(s.score)
+                })),
                 borderColor: color,
                 backgroundColor: color + '20',
                 borderWidth: 3,
@@ -453,59 +471,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 pointHoverRadius: 8,
                 pointBorderWidth: 2,
                 yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
-            };
+            });
         });
 
-        // 获取所有日期并排序
-        const dates = [...new Set(scoresData.map(s => s.exam_date))].sort((a, b) => new Date(a) - new Date(b));
-
-        // 确保图表占满整个宽度
-        const startDate = new Date(Math.min(...dates.map(d => new Date(d))));
-        const endDate = new Date(Math.max(...dates.map(d => new Date(d))));
-        
-        // 如果日期范围太小，添加额外的空白日期以扩展图表
-        if (dates.length < 5) {
-            const dateRange = endDate - startDate;
-            const extraDays = Math.ceil(dateRange * 0.2); // 增加20%的日期范围
-            
-            const beforeDate = new Date(startDate);
-            beforeDate.setDate(beforeDate.getDate() - extraDays);
-            
-            const afterDate = new Date(endDate);
-            afterDate.setDate(afterDate.getDate() + extraDays);
-            
-            // 将这些虚拟日期添加到examDates（但不包含数据）
-            dates.unshift(beforeDate.toISOString().split('T')[0]);
-            dates.push(afterDate.toISOString().split('T')[0]);
-        }
-
+        // 初始化图表
         const ctx = document.getElementById('scoreChart').getContext('2d');
         window.scoreChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: dates,
                 datasets: datasets
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 1.5, // 降低到1.5，让图表更宽一些
-                layout: {
-                    padding: {
-                        left: 5,
-                        right: 10,
-                        top: 10,
-                        bottom: 5
-                    }
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
+                maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: false,
-                    },
                     legend: {
                         position: 'top',
                         align: 'center',
@@ -516,6 +495,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     },
                     tooltip: {
+                        mode: 'index',
+                        intersect: false,
                         callbacks: {
                             label: function(context) {
                                 const label = context.dataset.label || '';
@@ -528,21 +509,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 scales: {
                     x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'yyyy-MM-dd'
+                            },
+                            tooltipFormat: 'yyyy-MM-dd'
+                        },
                         grid: {
                             display: false
                         },
                         ticks: {
-                            maxRotation: 30,
+                            source: 'data',
                             autoSkip: false,
+                            maxRotation: 30,
                             font: {
                                 size: 12
                             }
-                        },
-                        // 添加边界，防止图表靠边
-                        bounds: 'data',
-                        // 确保显示所有日期标签
-                        min: dates[0],
-                        max: dates[dates.length - 1]
+                        }
                     },
                     y120: {
                         position: 'left',
@@ -568,18 +553,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             display: false
                         }
                     }
-                },
-                elements: {
-                    point: {
-                        radius: 5,
-                        hoverRadius: 7,
-                        borderWidth: 2
-                    },
-                    line: {
-                        borderWidth: 3,
-                        fill: true
-                    }
                 }
+            }
+        });
+        
+        // 调整图表大小以适应容器
+        window.addEventListener('resize', function() {
+            if (window.scoreChart) {
+                window.scoreChart.resize();
             }
         });
         
@@ -671,13 +652,6 @@ function getRandomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// 添加窗口大小变化时重新渲染图表的代码
-window.addEventListener('resize', function() {
-    if (window.scoreChart) {
-        window.scoreChart.resize();
-    }
-});
-
 // 确保图表在DOM完全加载后渲染
 document.addEventListener('DOMContentLoaded', function() {
     // 原有的初始化代码...
@@ -766,27 +740,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    /* 确保图表容器最大化宽度 */
+    /* 图表容器样式 */
+    .chart-container {
+        margin: 0 auto;
+        max-width: 100%;
+        min-height: 400px;
+    }
+    
+    /* 确保canvas正确占满容器 */
     #scoreChart {
         width: 100% !important;
-    }
-    
-    /* 调整科目筛选区域 */
-    #subject-filter-area {
-        margin-bottom: 15px !important;
-        text-align: center !important;
-    }
-    
-    /* 重写Canvas样式 */
-    canvas {
-        max-width: 100% !important;
-    }
-    
-    /* 如果你使用了Chart.js的容器 */
-    .chartjs-size-monitor,
-    .chartjs-render-monitor {
-        width: 100% !important;
-        max-width: none !important;
+        height: 100% !important;
     }
 </style>
 {% endblock %} 
