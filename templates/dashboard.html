@@ -503,8 +503,28 @@ document.addEventListener('DOMContentLoaded', function() {
         // 获取所有日期并排序
         const dates = [...new Set(scoresData.map(s => s.exam_date))].sort((a, b) => new Date(a) - new Date(b));
 
+        // 确保图表占满整个宽度
+        const startDate = new Date(Math.min(...dates.map(d => new Date(d))));
+        const endDate = new Date(Math.max(...dates.map(d => new Date(d))));
+        
+        // 如果日期范围太小，添加额外的空白日期以扩展图表
+        if (dates.length < 5) {
+            const dateRange = endDate - startDate;
+            const extraDays = Math.ceil(dateRange * 0.2); // 增加20%的日期范围
+            
+            const beforeDate = new Date(startDate);
+            beforeDate.setDate(beforeDate.getDate() - extraDays);
+            
+            const afterDate = new Date(endDate);
+            afterDate.setDate(afterDate.getDate() + extraDays);
+            
+            // 将这些虚拟日期添加到examDates（但不包含数据）
+            dates.unshift(beforeDate.toISOString().split('T')[0]);
+            dates.push(afterDate.toISOString().split('T')[0]);
+        }
+
         const ctx = document.getElementById('scoreChart').getContext('2d');
-        new Chart(ctx, {
+        window.scoreChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: dates,
@@ -513,10 +533,13 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                aspectRatio: 1.8,
+                aspectRatio: 1.5, // 降低到1.5，让图表更宽一些
                 layout: {
                     padding: {
-                        right: 10
+                        left: 5,
+                        right: 10,
+                        top: 10,
+                        bottom: 5
                     }
                 },
                 interaction: {
@@ -532,7 +555,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         align: 'center',
                         labels: {
                             boxWidth: 15,
-                            padding: 10
+                            padding: 10,
+                            usePointStyle: true
                         }
                     },
                     tooltip: {
@@ -541,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const label = context.dataset.label || '';
                                 const value = context.parsed.y;
                                 const maxScore = ['语文', '数学', '英语'].includes(label) ? 120 : 100;
-                                return `${label}: ${value}分 (满分${maxScore}分)`;
+                                return `${label}: ${value !== null ? value + '分' : '无数据'} (满分${maxScore}分)`;
                             }
                         }
                     }
@@ -557,7 +581,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             font: {
                                 size: 12
                             }
-                        }
+                        },
+                        // 添加边界，防止图表靠边
+                        bounds: 'data',
+                        // 确保显示所有日期标签
+                        min: dates[0],
+                        max: dates[dates.length - 1]
                     },
                     y120: {
                         position: 'left',
@@ -582,6 +611,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         grid: {
                             display: false
                         }
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 5,
+                        hoverRadius: 7,
+                        borderWidth: 2
+                    },
+                    line: {
+                        borderWidth: 3,
+                        fill: true
                     }
                 }
             }
@@ -673,187 +713,6 @@ function getRandomColor() {
         '#f8961e', '#90be6d', '#43aa8b', '#577590'
     ];
     return colors[Math.floor(Math.random() * colors.length)];
-}
-
-function initScoreChart(scores) {
-    const ctx = document.getElementById('scoreChart').getContext('2d');
-    
-    // 处理数据，为每个科目创建数据集
-    const subjects = [...new Set(scores.map(score => score.subject))];
-    const examDates = [...new Set(scores.map(score => score.exam_date))].sort((a, b) => 
-        new Date(a) - new Date(b)
-    );
-    
-    // 确保图表占满整个宽度
-    const startDate = new Date(Math.min(...examDates.map(d => new Date(d))));
-    const endDate = new Date(Math.max(...examDates.map(d => new Date(d))));
-    
-    // 如果日期范围太小，添加额外的空白日期以扩展图表
-    if (examDates.length < 5) {
-        const dateRange = endDate - startDate;
-        const extraDays = Math.ceil(dateRange * 0.2); // 增加20%的日期范围
-        
-        const beforeDate = new Date(startDate);
-        beforeDate.setDate(beforeDate.getDate() - extraDays);
-        
-        const afterDate = new Date(endDate);
-        afterDate.setDate(afterDate.getDate() + extraDays);
-        
-        // 将这些虚拟日期添加到examDates（但不包含数据）
-        examDates.unshift(beforeDate.toISOString().split('T')[0]);
-        examDates.push(afterDate.toISOString().split('T')[0]);
-    }
-    
-    const datasets = subjects.map(subject => {
-        // 为每个科目分配固定颜色而不是随机颜色
-        let color;
-        switch(subject) {
-            case '语文': color = '75, 192, 192'; break;
-            case '数学': color = '54, 162, 235'; break;
-            case '英语': color = '255, 99, 132'; break;
-            case '物理': color = '255, 159, 64'; break;
-            case '化学': color = '153, 102, 255'; break;
-            case '生物': color = '255, 205, 86'; break;
-            case '历史': color = '201, 203, 207'; break;
-            case '地理': color = '255, 99, 71'; break;
-            case '道法': color = '50, 205, 50'; break;
-            default: color = '128, 128, 128';
-        }
-        
-        // 查找该科目在每个日期的分数
-        const data = examDates.map(date => {
-            const scoreObj = scores.find(s => s.subject === subject && s.exam_date === date);
-            return scoreObj ? scoreObj.score : null;
-        });
-        
-        return {
-            label: subject,
-            data: data,
-            borderColor: `rgba(${color}, 1)`,
-            backgroundColor: `rgba(${color}, 0.2)`,
-            borderWidth: 3,
-            tension: 0.3,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            pointBorderWidth: 2,
-            // 根据科目类型分配到不同的Y轴
-            yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
-        };
-    });
-    
-    // 保存原始数据用于筛选
-    window.originalChartData = {
-        labels: examDates,
-        datasets: datasets
-    };
-    
-    // 销毁现有图表（如果存在）
-    if (window.scoreChart) {
-        window.scoreChart.destroy();
-    }
-    
-    // 创建新图表
-    window.scoreChart = new Chart(ctx, {
-        type: 'line',
-        data: window.originalChartData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 1.5, // 从1.8降低到1.5，让图表更宽一些
-            layout: {
-                padding: {
-                    left: 5,
-                    right: 10,
-                    top: 10,
-                    bottom: 5
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        maxRotation: 30,
-                        autoSkip: false,
-                        font: {
-                            size: 12
-                        }
-                    },
-                    // 添加边界，防止图表靠边
-                    bounds: 'data',
-                    // 确保显示所有日期标签
-                    min: examDates[0],
-                    max: examDates[examDates.length - 1]
-                },
-                y120: {
-                    position: 'left',
-                    beginAtZero: true,
-                    max: 120,
-                    title: {
-                        display: true,
-                        text: '语数英分数 (满分120)'
-                    },
-                    grid: {
-                        color: '#f0f0f0'
-                    }
-                },
-                y100: {
-                    position: 'right',
-                    beginAtZero: true,
-                    max: 100,
-                    title: {
-                        display: true,
-                        text: '其他科目分数 (满分100)'
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'center',
-                    labels: {
-                        boxWidth: 15,
-                        padding: 10,
-                        usePointStyle: true
-                    }
-                },
-                tooltip: {
-                    titleFont: {
-                        size: 14
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    callbacks: {
-                        title: function(tooltipItems) {
-                            return '考试日期: ' + tooltipItems[0].label;
-                        },
-                        label: function(context) {
-                            const label = context.dataset.label || '';
-                            const value = context.parsed.y;
-                            const maxScore = ['语文', '数学', '英语'].includes(label) ? 120 : 100;
-                            return `${label}: ${value !== null ? value + '分' : '无数据'} (满分${maxScore}分)`;
-                        }
-                    }
-                }
-            },
-            elements: {
-                point: {
-                    radius: 5,
-                    hoverRadius: 7,
-                    borderWidth: 2
-                },
-                line: {
-                    borderWidth: 3,
-                    fill: true
-                }
-            }
-        }
-    });
 }
 
 // 添加窗口大小变化时重新渲染图表的代码
