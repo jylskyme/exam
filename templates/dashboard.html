@@ -115,8 +115,8 @@
                     <div class="tab-content mt-3" id="subjectTabContent">
                         <!-- 总览选项卡 -->
                         <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
+                            <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                                <table class="table table-hover" style="min-width: 100%;">
                                     <thead class="table-light">
                                         <tr>
                                             <th>科目</th>
@@ -147,12 +147,12 @@
                                             <td>{{ stat.min }}</td>
                                             <td>{{ stat.std_dev }}</td>
                                             <td>
-                                                <div class="progress" style="height: 20px;">
+                                                <div class="progress" style="height: 20px; min-width: 100px;">
                                                     <div class="progress-bar bg-success" role="progressbar" style="width: {{ stat.high_rate }}%;" aria-valuenow="{{ stat.high_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.high_rate }}%</div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="progress" style="height: 20px;">
+                                                <div class="progress" style="height: 20px; min-width: 100px;">
                                                     <div class="progress-bar bg-info" role="progressbar" style="width: {{ stat.pass_rate }}%;" aria-valuenow="{{ stat.pass_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.pass_rate }}%</div>
                                                 </div>
                                             </td>
@@ -167,7 +167,7 @@
                         {% for stat in subject_stats %}
                         <div class="tab-pane fade" id="subject-{{ stat.name }}" role="tabpanel">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-lg-6">
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="card-title">{{ stat.name }} 基本数据</h5>
@@ -198,18 +198,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-lg-6">
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="card-title">{{ stat.name }} 成绩分布</h5>
                                             <div class="mt-3">
                                                 <h6>优秀率 (≥90分): {{ stat.high_rate }}%</h6>
-                                                <div class="progress mb-3" style="height: 25px;">
+                                                <div class="progress mb-3" style="height: 25px; min-width: 100%;">
                                                     <div class="progress-bar bg-success" role="progressbar" style="width: {{ stat.high_rate }}%;" aria-valuenow="{{ stat.high_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.high_rate }}%</div>
                                                 </div>
                                                 
                                                 <h6>及格率 (≥60分): {{ stat.pass_rate }}%</h6>
-                                                <div class="progress" style="height: 25px;">
+                                                <div class="progress" style="height: 25px; min-width: 100%;">
                                                     <div class="progress-bar bg-info" role="progressbar" style="width: {{ stat.pass_rate }}%;" aria-valuenow="{{ stat.pass_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.pass_rate }}%</div>
                                                 </div>
                                             </div>
@@ -222,8 +222,8 @@
                             <div class="card mt-3">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ stat.name }} 成绩记录</h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
+                                    <div class="table-responsive" style="width: 100%;">
+                                        <table class="table table-striped" style="min-width: 100%;">
                                             <thead>
                                                 <tr>
                                                     <th>考试日期</th>
