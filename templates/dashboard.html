@@ -85,14 +85,12 @@
                     <h5 class="card-title mb-0">成绩趋势图</h5>
                 </div>
                 <div class="card-body">
-                    <!-- 科目选择过滤器 -->
-                    <div class="subject-filter-container">
-                        <!-- ... existing code ... -->
-                    </div>
+                    <!-- 科目筛选区域 -->
+                    <div id="subject-filter-area" style="margin-bottom: 15px;" class="subject-filter-container"></div>
                     
                     <!-- 图表容器，设置最小高度确保图表显示合适 -->
-                    <div class="chart-container" style="position: relative; width: 100%; min-height: 400px;">
-                        <canvas id="scoreChart" style="width: 100%; height: 100%;"></canvas>
+                    <div class="chart-container" style="position: relative; width: 100%; height: 350px;">
+                        <canvas id="scoreChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -439,125 +437,168 @@ document.addEventListener('DOMContentLoaded', function() {
         Chart.defaults.font.family = "'Segoe UI', 'Arial', sans-serif";
         Chart.defaults.color = '#6c757d';
         
-        // 构建数据集
+        // 获取所有科目
         const subjects = [...new Set(scoresData.map(s => s.subject))];
-        const datasets = [];
         
-        // 获取所有日期并排序
-        const allDates = [...new Set(scoresData.map(s => s.exam_date))].sort((a, b) => new Date(a) - new Date(b));
+        // 创建科目筛选区域
+        const subjectFilterArea = document.getElementById('subject-filter-area');
+        subjectFilterArea.innerHTML = '';
         
-        // 为每个科目构建数据集
+        // 添加科目选择复选框
         subjects.forEach(subject => {
-            const subjectScores = scoresData
-                .filter(s => s.subject === subject)
-                .sort((a, b) => new Date(a.exam_date) - new Date(b.exam_date));
-            
-            // 跳过没有数据的科目
-            if (subjectScores.length === 0) return;
-            
             const color = getRandomColor();
-            datasets.push({
-                label: subject,
-                data: subjectScores.map(s => ({
-                    x: s.exam_date,
-                    y: parseFloat(s.score)
-                })),
-                borderColor: color,
-                backgroundColor: color + '20',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 5,
-                pointHoverRadius: 8,
-                pointBorderWidth: 2,
-                yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
+            const checkboxId = `filter-${subject}`;
+            
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'form-check';
+            
+            const checkbox = document.createElement('input');
+            checkbox.className = 'form-check-input';
+            checkbox.type = 'checkbox';
+            checkbox.id = checkboxId;
+            checkbox.value = subject;
+            checkbox.checked = true;
+            checkbox.setAttribute('data-color', color);
+            
+            const label = document.createElement('label');
+            label.className = 'form-check-label';
+            label.htmlFor = checkboxId;
+            label.textContent = subject;
+            
+            checkboxDiv.appendChild(checkbox);
+            checkboxDiv.appendChild(label);
+            subjectFilterArea.appendChild(checkboxDiv);
+            
+            // 添加复选框事件监听
+            checkbox.addEventListener('change', function() {
+                updateChart();
             });
         });
-
-        // 初始化图表
-        const ctx = document.getElementById('scoreChart').getContext('2d');
-        window.scoreChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'center',
-                        labels: {
-                            boxWidth: 15,
-                            padding: 10,
-                            usePointStyle: true
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.dataset.label || '';
-                                const value = context.parsed.y;
-                                const maxScore = ['语文', '数学', '英语'].includes(label) ? 120 : 100;
-                                return `${label}: ${value !== null ? value + '分' : '无数据'} (满分${maxScore}分)`;
-                            }
-                        }
-                    }
+        
+        // 创建数据集和图表
+        function updateChart() {
+            // 获取选中的科目
+            const selectedSubjects = Array.from(document.querySelectorAll('#subject-filter-area input:checked')).map(cb => cb.value);
+            
+            // 构建数据集
+            const datasets = [];
+            
+            // 为每个选中科目创建数据集
+            selectedSubjects.forEach(subject => {
+                const subjectScores = scoresData
+                    .filter(s => s.subject === subject)
+                    .sort((a, b) => new Date(a.exam_date) - new Date(b.exam_date));
+                
+                if (subjectScores.length === 0) return;
+                
+                const checkbox = document.getElementById(`filter-${subject}`);
+                const color = checkbox.getAttribute('data-color');
+                
+                datasets.push({
+                    label: subject,
+                    data: subjectScores.map(s => ({
+                        x: s.exam_date,
+                        y: parseFloat(s.score)
+                    })),
+                    borderColor: color,
+                    backgroundColor: color + '20',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBorderWidth: 2,
+                    yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
+                });
+            });
+            
+            // 如果存在图表，销毁它
+            if (window.scoreChart) {
+                window.scoreChart.destroy();
+            }
+            
+            // 初始化图表
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            window.scoreChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
                 },
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            displayFormats: {
-                                day: 'yyyy-MM-dd'
-                            },
-                            tooltipFormat: 'yyyy-MM-dd'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: {
+                            display: false // 不显示图例，因为已经有了复选框
                         },
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            source: 'data',
-                            autoSkip: false,
-                            maxRotation: 30,
-                            font: {
-                                size: 12
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y;
+                                    const maxScore = ['语文', '数学', '英语'].includes(label) ? 120 : 100;
+                                    return `${label}: ${value !== null ? value + '分' : '无数据'} (满分${maxScore}分)`;
+                                }
                             }
                         }
                     },
-                    y120: {
-                        position: 'left',
-                        beginAtZero: true,
-                        max: 120,
-                        title: {
-                            display: true,
-                            text: '语数英分数 (满分120)'
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'yyyy-MM-dd'
+                                },
+                                tooltipFormat: 'yyyy-MM-dd'
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                source: 'data',
+                                maxRotation: 30,
+                                font: {
+                                    size: 12
+                                }
+                            }
                         },
-                        grid: {
-                            color: '#f0f0f0'
-                        }
-                    },
-                    y100: {
-                        position: 'right',
-                        beginAtZero: true,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: '其他科目分数 (满分100)'
+                        y120: {
+                            position: 'left',
+                            beginAtZero: true,
+                            max: 120,
+                            title: {
+                                display: true,
+                                text: '语数英分数 (满分120)'
+                            },
+                            grid: {
+                                color: '#f0f0f0'
+                            }
                         },
-                        grid: {
-                            display: false
+                        y100: {
+                            position: 'right',
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: '其他科目分数 (满分100)'
+                            },
+                            grid: {
+                                display: false
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
         
-        // 调整图表大小以适应容器
+        // 首次加载时初始化图表
+        updateChart();
+        
+        // 响应窗口大小变化
         window.addEventListener('resize', function() {
             if (window.scoreChart) {
                 window.scoreChart.resize();
