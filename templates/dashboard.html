@@ -3,259 +3,465 @@
 {% block title %}仪表板{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2><i class="fas fa-chart-bar me-2"></i>成绩概览</h2>
-            <a href="{{ url_for('add_score') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>添加成绩
-            </a>
+<div class="container-fluid py-4" style="padding-left: 25px; padding-right: 25px;">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-chart-bar me-2"></i>成绩概览</h2>
+                <a href="{{ url_for('add_score') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>添加成绩
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 数据统计卡片 -->
-{% if scores %}
-<div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="card-subtitle text-muted">总记录数</h6>
-                    <div class="bg-primary text-white rounded-circle p-2">
-                        <i class="fas fa-clipboard-list"></i>
+    <!-- 数据统计卡片 -->
+    {% if scores %}
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="card-subtitle text-muted">总记录数</h6>
+                        <div class="bg-primary text-white rounded-circle p-2">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
                     </div>
+                    <h3 class="card-title mb-0">{{ scores|length }}</h3>
+                    <p class="card-text text-success mt-2 mb-0"><i class="fas fa-clock me-1"></i>条成绩记录</p>
                 </div>
-                <h3 class="card-title mb-0">{{ scores|length }}</h3>
-                <p class="card-text text-success mt-2 mb-0"><i class="fas fa-clock me-1"></i>条成绩记录</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="card-subtitle text-muted">平均分</h6>
+                        <div class="bg-success text-white rounded-circle p-2">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-0">{{ (scores|map(attribute='score')|sum / scores|length)|round(1) }}</h3>
+                    <p class="card-text text-primary mt-2 mb-0"><i class="fas fa-chart-line me-1"></i>所有科目平均</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="card-subtitle text-muted">最高分</h6>
+                        <div class="bg-warning text-white rounded-circle p-2">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-0">{{ scores|map(attribute='score')|max }}</h3>
+                    <p class="card-text text-warning mt-2 mb-0"><i class="fas fa-star me-1"></i>最佳成绩</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="card-subtitle text-muted">科目数</h6>
+                        <div class="bg-info text-white rounded-circle p-2">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title mb-0">{{ scores|map(attribute='subject')|unique|list|length }}</h3>
+                    <p class="card-text text-info mt-2 mb-0"><i class="fas fa-list me-1"></i>不同科目</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="card-subtitle text-muted">平均分</h6>
-                    <div class="bg-success text-white rounded-circle p-2">
-                        <i class="fas fa-calculator"></i>
-                    </div>
-                </div>
-                <h3 class="card-title mb-0">{{ (scores|map(attribute='score')|sum / scores|length)|round(1) }}</h3>
-                <p class="card-text text-primary mt-2 mb-0"><i class="fas fa-chart-line me-1"></i>所有科目平均</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="card-subtitle text-muted">最高分</h6>
-                    <div class="bg-warning text-white rounded-circle p-2">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                </div>
-                <h3 class="card-title mb-0">{{ scores|map(attribute='score')|max }}</h3>
-                <p class="card-text text-warning mt-2 mb-0"><i class="fas fa-star me-1"></i>最佳成绩</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="card-subtitle text-muted">科目数</h6>
-                    <div class="bg-info text-white rounded-circle p-2">
-                        <i class="fas fa-book"></i>
-                    </div>
-                </div>
-                <h3 class="card-title mb-0">{{ scores|map(attribute='subject')|unique|list|length }}</h3>
-                <p class="card-text text-info mt-2 mb-0"><i class="fas fa-list me-1"></i>不同科目</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<!-- 图表部分 -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>成绩趋势图</h5>
-            </div>
-            <div class="card-body">
-                {% if scores %}
+    <!-- 成绩趋势图上方的科目筛选部分 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">成绩趋势图</h5>
+        </div>
+        <div class="card-body" style="padding: 10px; min-height: 500px;">
+            <!-- 科目筛选区域 -->
+            <div id="subject-filter-area" style="margin-bottom: 15px;"></div>
+            
+            <!-- 调整图表容器，确保宽度最大化 -->
+            <div style="height: 420px; width: 100%; max-width: none; overflow-x: hidden;">
                 <canvas id="scoreChart"></canvas>
-                {% else %}
-                <div class="empty-state py-5">
-                    <i class="fas fa-chart-bar text-muted mb-3"></i>
-                    <h5>暂无成绩数据</h5>
-                    <p class="text-muted">添加您的第一条成绩记录，开始追踪学习进步！</p>
-                    <a href="{{ url_for('add_score') }}" class="btn btn-primary btn-sm mt-3">
-                        <i class="fas fa-plus me-2"></i>添加成绩
-                    </a>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
-</div>
 
-<!-- 成绩记录表格 -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><i class="fas fa-list-alt me-2"></i>成绩记录</h5>
-                {% if scores %}
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-download me-1"></i>导出
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
-                        <li><a class="dropdown-item" href="{{ url_for('export_excel') }}"><i class="fas fa-file-excel me-2"></i>导出为Excel</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('export_pdf') }}"><i class="fas fa-file-pdf me-2"></i>导出为PDF</a></li>
-                    </ul>
+    <!-- 在成绩趋势图后添加以下代码 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">科目统计分析</h5>
                 </div>
-                {% endif %}
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>科目</th>
-                                <th>分数</th>
-                                <th>考试日期</th>
-                                <th>备注</th>
-                                <th class="text-end">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for score in scores %}
-                            <tr>
-                                <td>
-                                    <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ score.subject }}</span>
-                                </td>
-                                <td>
-                                    <strong>{{ score.score }}</strong>
-                                    {% set max_score = 120 if score.subject in ['语文', '数学', '英语'] else 100 %}
-                                    <div class="progress mt-1" style="height: 4px;">
-                                        <div class="progress-bar {{ 'bg-success' if score.score >= max_score * 0.85 else 'bg-primary' }}" 
-                                             role="progressbar" 
-                                             style="width: {{ (score.score / max_score * 100)|round }}%;"
-                                             aria-valuenow="{{ score.score }}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="{{ max_score }}">
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="subjectTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">总览</button>
+                        </li>
+                        {% for stat in subject_stats %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-{{ stat.name }}" data-bs-toggle="tab" data-bs-target="#subject-{{ stat.name }}" type="button" role="tab">{{ stat.name }}</button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="tab-content mt-3" id="subjectTabContent">
+                        <!-- 总览选项卡 -->
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>科目</th>
+                                            <th>考试次数</th>
+                                            <th>平均分</th>
+                                            <th>最高分</th>
+                                            <th>最低分</th>
+                                            <th>标准差</th>
+                                            <th>优秀率(≥90)</th>
+                                            <th>及格率(≥60)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for stat in subject_stats %}
+                                        <tr>
+                                            <td>{{ stat.name }}</td>
+                                            <td>{{ stat.count }}</td>
+                                            <td>
+                                                <span class="badge rounded-pill 
+                                                {% if stat.avg >= 90 %}bg-success
+                                                {% elif stat.avg >= 75 %}bg-primary
+                                                {% elif stat.avg >= 60 %}bg-warning
+                                                {% else %}bg-danger{% endif %}">
+                                                    {{ stat.avg }}
+                                                </span>
+                                            </td>
+                                            <td>{{ stat.max }}</td>
+                                            <td>{{ stat.min }}</td>
+                                            <td>{{ stat.std_dev }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ stat.high_rate }}%;" aria-valuenow="{{ stat.high_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.high_rate }}%</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ stat.pass_rate }}%;" aria-valuenow="{{ stat.pass_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.pass_rate }}%</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 每个科目的单独选项卡 -->
+                        {% for stat in subject_stats %}
+                        <div class="tab-pane fade" id="subject-{{ stat.name }}" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ stat.name }} 基本数据</h5>
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>考试次数:</th>
+                                                        <td>{{ stat.count }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>平均分:</th>
+                                                        <td>{{ stat.avg }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>最高分:</th>
+                                                        <td>{{ stat.max }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>最低分:</th>
+                                                        <td>{{ stat.min }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>标准差:</th>
+                                                        <td>{{ stat.std_dev }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                </td>
-                                <td>{{ score.exam_date }}</td>
-                                <td>{{ score.remarks }}</td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-primary edit-score-btn" 
-                                            data-id="{{ score.id }}"
-                                            data-subject="{{ score.subject }}"
-                                            data-score="{{ score.score }}"
-                                            data-exam-date="{{ score.exam_date }}"
-                                            data-remarks="{{ score.remarks }}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger delete-score-btn"
-                                            data-id="{{ score.id }}"
-                                            data-subject="{{ score.subject }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="text-center py-5">
-                                    <div class="empty-state">
-                                        <i class="fas fa-clipboard text-muted"></i>
-                                        <p class="mt-3 mb-0">暂无成绩记录</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ stat.name }} 成绩分布</h5>
+                                            <div class="mt-3">
+                                                <h6>优秀率 (≥90分): {{ stat.high_rate }}%</h6>
+                                                <div class="progress mb-3" style="height: 25px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ stat.high_rate }}%;" aria-valuenow="{{ stat.high_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.high_rate }}%</div>
+                                                </div>
+                                                
+                                                <h6>及格率 (≥60分): {{ stat.pass_rate }}%</h6>
+                                                <div class="progress" style="height: 25px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ stat.pass_rate }}%;" aria-valuenow="{{ stat.pass_rate }}" aria-valuemin="0" aria-valuemax="100">{{ stat.pass_rate }}%</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- 该科目的成绩列表 -->
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stat.name }} 成绩记录</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>考试日期</th>
+                                                    <th>分数</th>
+                                                    <th>备注</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for score in scores %}
+                                                    {% if score.subject == stat.name %}
+                                                    <tr>
+                                                        <td>{{ score.exam_date }}</td>
+                                                        <td>
+                                                            <span class="badge rounded-pill 
+                                                            {% if score.score >= 90 %}bg-success
+                                                            {% elif score.score >= 75 %}bg-primary
+                                                            {% elif score.score >= 60 %}bg-warning
+                                                            {% else %}bg-danger{% endif %}">
+                                                                {{ score.score }}
+                                                            </span>
+                                                        </td>
+                                                        <td>{{ score.remarks }}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 修改成绩模态框 -->
-<div class="modal fade" id="editScoreModal" tabindex="-1" aria-labelledby="editScoreModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editScoreModalLabel"><i class="fas fa-edit me-2"></i>修改成绩</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- 成绩记录表格 -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fas fa-list-alt me-2"></i>成绩记录</h5>
+                    {% if scores %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-download me-1"></i>导出
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('export_excel') }}"><i class="fas fa-file-excel me-2"></i>导出为Excel</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('export_pdf') }}"><i class="fas fa-file-pdf me-2"></i>导出为PDF</a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>科目</th>
+                                    <th>分数</th>
+                                    <th>考试日期</th>
+                                    <th>备注</th>
+                                    <th class="text-end">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in scores %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ score.subject }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ score.score }}</strong>
+                                        {% set max_score = 120 if score.subject in ['语文', '数学', '英语'] else 100 %}
+                                        <div class="progress mt-1" style="height: 4px;">
+                                            <div class="progress-bar {{ 'bg-success' if score.score >= max_score * 0.85 else 'bg-primary' }}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ (score.score / max_score * 100)|round }}%;"
+                                                 aria-valuenow="{{ score.score }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="{{ max_score }}">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ score.exam_date }}</td>
+                                    <td>{{ score.remarks }}</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary edit-score-btn" 
+                                                data-id="{{ score.id }}"
+                                                data-subject="{{ score.subject }}"
+                                                data-score="{{ score.score }}"
+                                                data-exam-date="{{ score.exam_date }}"
+                                                data-remarks="{{ score.remarks }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-score-btn"
+                                                data-id="{{ score.id }}"
+                                                data-subject="{{ score.subject }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-clipboard text-muted"></i>
+                                            <p class="mt-3 mb-0">暂无成绩记录</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <form id="editScoreForm" action="{{ url_for('edit_score') }}" method="post">
+        </div>
+    </div>
+
+    <!-- 修改成绩模态框 -->
+    <div class="modal fade" id="editScoreModal" tabindex="-1" aria-labelledby="editScoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editScoreModalLabel"><i class="fas fa-edit me-2"></i>修改成绩</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editScoreForm" action="{{ url_for('edit_score') }}" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit-score-id" name="score_id">
+                        
+                        <div class="mb-3">
+                            <label for="edit-subject" class="form-label">科目</label>
+                            <div style="margin: 20px 0; padding: 15px; background-color: #eaf7ff; border-radius: 10px; display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #d0e3ff;">
+                                <!-- 语文 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-语文" value="语文" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-语文" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">语文</label>
+                                </div>
+                                
+                                <!-- 数学 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-数学" value="数学" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-数学" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">数学</label>
+                                </div>
+                                
+                                <!-- 英语 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-英语" value="英语" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-英语" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">英语</label>
+                                </div>
+                                
+                                <!-- 物理 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-物理" value="物理" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-物理" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">物理</label>
+                                </div>
+                                
+                                <!-- 化学 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-化学" value="化学" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-化学" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">化学</label>
+                                </div>
+                                
+                                <!-- 生物 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-生物" value="生物" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-生物" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">生物</label>
+                                </div>
+                                
+                                <!-- 历史 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-历史" value="历史" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-历史" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">历史</label>
+                                </div>
+                                
+                                <!-- 地理 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-地理" value="地理" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-地理" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">地理</label>
+                                </div>
+                                
+                                <!-- 道法 -->
+                                <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <input class="form-check-input" type="checkbox" id="subject-道法" value="道法" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <label class="form-check-label" for="subject-道法" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">道法</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="edit-score" class="form-label">分数</label>
+                            <input type="number" class="form-control" id="edit-score" name="score" step="0.5" min="0" max="120" required>
+                            <div class="form-text">语文、数学、英语满分为120分，其他科目满分为100分</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="edit-exam-date" class="form-label">考试日期</label>
+                            <input type="date" class="form-control" id="edit-exam-date" name="exam_date" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="edit-remarks" class="form-label">备注</label>
+                            <textarea class="form-control" id="edit-remarks" name="remarks" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存修改</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除成绩确认模态框 -->
+    <div class="modal fade" id="deleteScoreModal" tabindex="-1" aria-labelledby="deleteScoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteScoreModalLabel"><i class="fas fa-exclamation-triangle text-danger me-2"></i>确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
-                    <input type="hidden" id="edit-score-id" name="score_id">
-                    
-                    <div class="mb-3">
-                        <label for="edit-subject" class="form-label">科目</label>
-                        <select class="form-select" id="edit-subject" name="subject" required>
-                            <option value="语文">语文</option>
-                            <option value="数学">数学</option>
-                            <option value="英语">英语</option>
-                            <option value="物理">物理</option>
-                            <option value="化学">化学</option>
-                            <option value="生物">生物</option>
-                            <option value="历史">历史</option>
-                            <option value="地理">地理</option>
-                            <option value="道法">道法</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit-score" class="form-label">分数</label>
-                        <input type="number" class="form-control" id="edit-score" name="score" step="0.5" min="0" max="120" required>
-                        <div class="form-text">语文、数学、英语满分为120分，其他科目满分为100分</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit-exam-date" class="form-label">考试日期</label>
-                        <input type="date" class="form-control" id="edit-exam-date" name="exam_date" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="edit-remarks" class="form-label">备注</label>
-                        <textarea class="form-control" id="edit-remarks" name="remarks" rows="2"></textarea>
-                    </div>
+                    <p>您确定要删除这条<span id="delete-subject-name" class="fw-bold"></span>成绩记录吗？</p>
+                    <p class="text-danger small">此操作不可撤销！</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-primary">保存修改</button>
+                    <form id="deleteScoreForm" action="{{ url_for('delete_score') }}" method="post">
+                        <input type="hidden" id="delete-score-id" name="score_id">
+                        <button type="submit" class="btn btn-danger">确认删除</button>
+                    </form>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- 删除成绩确认模态框 -->
-<div class="modal fade" id="deleteScoreModal" tabindex="-1" aria-labelledby="deleteScoreModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteScoreModalLabel"><i class="fas fa-exclamation-triangle text-danger me-2"></i>确认删除</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>您确定要删除这条<span id="delete-subject-name" class="fw-bold"></span>成绩记录吗？</p>
-                <p class="text-danger small">此操作不可撤销！</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <form id="deleteScoreForm" action="{{ url_for('delete_score') }}" method="post">
-                    <input type="hidden" id="delete-score-id" name="score_id">
-                    <button type="submit" class="btn btn-danger">确认删除</button>
-                </form>
             </div>
         </div>
     </div>
@@ -284,11 +490,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: subjectScores.map(s => s.score),
                 borderColor: color,
                 backgroundColor: color + '20',
-                borderWidth: 2,
+                borderWidth: 3,
                 fill: true,
-                tension: 0.2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
+                tension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBorderWidth: 2,
                 yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
             };
         });
@@ -305,6 +512,13 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1.8,
+                layout: {
+                    padding: {
+                        right: 10
+                    }
+                },
                 interaction: {
                     mode: 'index',
                     intersect: false,
@@ -315,11 +529,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     legend: {
                         position: 'top',
-                        align: 'end',
+                        align: 'center',
                         labels: {
-                            boxWidth: 12,
-                            usePointStyle: true,
-                            pointStyle: 'circle'
+                            boxWidth: 15,
+                            padding: 10
                         }
                     },
                     tooltip: {
@@ -337,6 +550,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            maxRotation: 30,
+                            autoSkip: false,
+                            font: {
+                                size: 12
+                            }
                         }
                     },
                     y120: {
@@ -454,5 +674,304 @@ function getRandomColor() {
     ];
     return colors[Math.floor(Math.random() * colors.length)];
 }
+
+function initScoreChart(scores) {
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+    
+    // 处理数据，为每个科目创建数据集
+    const subjects = [...new Set(scores.map(score => score.subject))];
+    const examDates = [...new Set(scores.map(score => score.exam_date))].sort((a, b) => 
+        new Date(a) - new Date(b)
+    );
+    
+    // 确保图表占满整个宽度
+    const startDate = new Date(Math.min(...examDates.map(d => new Date(d))));
+    const endDate = new Date(Math.max(...examDates.map(d => new Date(d))));
+    
+    // 如果日期范围太小，添加额外的空白日期以扩展图表
+    if (examDates.length < 5) {
+        const dateRange = endDate - startDate;
+        const extraDays = Math.ceil(dateRange * 0.2); // 增加20%的日期范围
+        
+        const beforeDate = new Date(startDate);
+        beforeDate.setDate(beforeDate.getDate() - extraDays);
+        
+        const afterDate = new Date(endDate);
+        afterDate.setDate(afterDate.getDate() + extraDays);
+        
+        // 将这些虚拟日期添加到examDates（但不包含数据）
+        examDates.unshift(beforeDate.toISOString().split('T')[0]);
+        examDates.push(afterDate.toISOString().split('T')[0]);
+    }
+    
+    const datasets = subjects.map(subject => {
+        // 为每个科目分配固定颜色而不是随机颜色
+        let color;
+        switch(subject) {
+            case '语文': color = '75, 192, 192'; break;
+            case '数学': color = '54, 162, 235'; break;
+            case '英语': color = '255, 99, 132'; break;
+            case '物理': color = '255, 159, 64'; break;
+            case '化学': color = '153, 102, 255'; break;
+            case '生物': color = '255, 205, 86'; break;
+            case '历史': color = '201, 203, 207'; break;
+            case '地理': color = '255, 99, 71'; break;
+            case '道法': color = '50, 205, 50'; break;
+            default: color = '128, 128, 128';
+        }
+        
+        // 查找该科目在每个日期的分数
+        const data = examDates.map(date => {
+            const scoreObj = scores.find(s => s.subject === subject && s.exam_date === date);
+            return scoreObj ? scoreObj.score : null;
+        });
+        
+        return {
+            label: subject,
+            data: data,
+            borderColor: `rgba(${color}, 1)`,
+            backgroundColor: `rgba(${color}, 0.2)`,
+            borderWidth: 3,
+            tension: 0.3,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBorderWidth: 2,
+            // 根据科目类型分配到不同的Y轴
+            yAxisID: ['语文', '数学', '英语'].includes(subject) ? 'y120' : 'y100'
+        };
+    });
+    
+    // 保存原始数据用于筛选
+    window.originalChartData = {
+        labels: examDates,
+        datasets: datasets
+    };
+    
+    // 销毁现有图表（如果存在）
+    if (window.scoreChart) {
+        window.scoreChart.destroy();
+    }
+    
+    // 创建新图表
+    window.scoreChart = new Chart(ctx, {
+        type: 'line',
+        data: window.originalChartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.5, // 从1.8降低到1.5，让图表更宽一些
+            layout: {
+                padding: {
+                    left: 5,
+                    right: 10,
+                    top: 10,
+                    bottom: 5
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        maxRotation: 30,
+                        autoSkip: false,
+                        font: {
+                            size: 12
+                        }
+                    },
+                    // 添加边界，防止图表靠边
+                    bounds: 'data',
+                    // 确保显示所有日期标签
+                    min: examDates[0],
+                    max: examDates[examDates.length - 1]
+                },
+                y120: {
+                    position: 'left',
+                    beginAtZero: true,
+                    max: 120,
+                    title: {
+                        display: true,
+                        text: '语数英分数 (满分120)'
+                    },
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                },
+                y100: {
+                    position: 'right',
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: '其他科目分数 (满分100)'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    align: 'center',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 10,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            return '考试日期: ' + tooltipItems[0].label;
+                        },
+                        label: function(context) {
+                            const label = context.dataset.label || '';
+                            const value = context.parsed.y;
+                            const maxScore = ['语文', '数学', '英语'].includes(label) ? 120 : 100;
+                            return `${label}: ${value !== null ? value + '分' : '无数据'} (满分${maxScore}分)`;
+                        }
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    radius: 5,
+                    hoverRadius: 7,
+                    borderWidth: 2
+                },
+                line: {
+                    borderWidth: 3,
+                    fill: true
+                }
+            }
+        }
+    });
+}
+
+// 添加窗口大小变化时重新渲染图表的代码
+window.addEventListener('resize', function() {
+    if (window.scoreChart) {
+        window.scoreChart.resize();
+    }
+});
+
+// 确保图表在DOM完全加载后渲染
+document.addEventListener('DOMContentLoaded', function() {
+    // 原有的初始化代码...
+    
+    // 添加一小段延时确保图表正确渲染
+    setTimeout(function() {
+        if (window.scoreChart) {
+            window.scoreChart.resize();
+        }
+    }, 200);
+});
 </script>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* 直接强化科目筛选容器 */
+    .subject-filter-container {
+        margin: 20px 0 !important;
+        padding: 15px !important;
+        background-color: #eaf7ff !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        align-items: center !important;
+        border: 1px solid #d0e3ff !important;
+    }
+    
+    /* 增强单个复选框容器 */
+    .subject-filter-container .form-check {
+        margin: 8px !important;
+        padding: 6px 12px !important;
+        background-color: #e3f2fd !important;
+        border-radius: 8px !important;
+        display: inline-block !important;
+        border: 1px solid #c1ddfd !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+    }
+    
+    /* 超大尺寸复选框 */
+    .subject-filter-container .form-check-input {
+        width: 22px !important;
+        height: 22px !important;
+        margin-right: 6px !important;
+        cursor: pointer !important;
+    }
+    
+    /* 超大字体标签 */
+    .subject-filter-container .form-check-label {
+        font-size: 20px !important;
+        font-weight: 600 !important;
+        color: #0056b3 !important;
+        cursor: pointer !important;
+        vertical-align: middle !important;
+    }
+    
+    /* 选中状态的视觉强化 */
+    .subject-filter-container .form-check-input:checked {
+        background-color: #0056b3 !important;
+        border-color: #0056b3 !important;
+    }
+    
+    /* 鼠标悬停效果 */
+    .subject-filter-container .form-check:hover {
+        background-color: #d0e3ff !important;
+        transform: translateY(-2px) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .subject-filter-container .form-check {
+            margin: 5px !important;
+            padding: 5px 10px !important;
+        }
+        
+        .subject-filter-container .form-check-label {
+            font-size: 18px !important;
+        }
+        
+        .subject-filter-container .form-check-input {
+            width: 18px !important;
+            height: 18px !important;
+        }
+    }
+    
+    /* 确保图表容器最大化宽度 */
+    #scoreChart {
+        width: 100% !important;
+    }
+    
+    /* 调整科目筛选区域 */
+    #subject-filter-area {
+        margin-bottom: 15px !important;
+        text-align: center !important;
+    }
+    
+    /* 重写Canvas样式 */
+    canvas {
+        max-width: 100% !important;
+    }
+    
+    /* 如果你使用了Chart.js的容器 */
+    .chartjs-size-monitor,
+    .chartjs-render-monitor {
+        width: 100% !important;
+        max-width: none !important;
+    }
+</style>
 {% endblock %} 
