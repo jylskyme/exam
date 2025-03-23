@@ -1,0 +1,192 @@
+# 学生成绩管理系统开发日志
+
+## 项目概述
+
+这是一个基于Flask的学生成绩管理系统，允许用户注册、登录、记录和管理成绩，并提供数据导出功能。
+
+### 主要功能
+- 用户注册与登录
+- 成绩添加、编辑、删除
+- 成绩数据统计和可视化
+- 支持Excel和PDF格式导出
+
+## 技术栈
+
+- **后端框架**: Flask 2.3.3
+- **数据库**: SQLite (本地开发), MySQL (服务器部署)
+- **ORM**: Flask-SQLAlchemy 3.1.1
+- **身份验证**: Flask-Login 0.6.3
+- **密码加密**: Werkzeug 2.3.7
+- **数据处理**: Pandas 2.1.1
+- **Excel处理**: Openpyxl 3.1.2
+- **PDF生成**: ReportLab 4.0.7
+
+## 本地开发环境配置
+
+### 数据库配置
+本地开发使用SQLite数据库:
+```python
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "instance", "exam.db")}'
+```
+
+服务器部署使用MySQL数据库:
+```python
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://8_141_1_108:AMw9bHS2edx8TfGs@localhost/8_141_1_108'
+```
+
+### 虚拟环境激活
+```bash
+# Windows
+venv\Scripts\activate
+
+# Linux/macOS
+source venv/bin/activate
+```
+
+### 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+### 运行开发服务器
+```bash
+python app.py
+```
+
+## 数据模型
+
+### User 模型
+```python
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255))
+    scores = db.relationship('Score', backref='user', lazy=True)
+```
+
+### Score 模型
+```python
+class Score(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    subject = db.Column(db.String(50), nullable=False)
+    score = db.Column(db.Float, nullable=False)
+    exam_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    remarks = db.Column(db.String(200))
+```
+
+## 项目结构
+.
+├── app.py # 主应用文件
+├── config.py # 配置文件
+├── requirements.txt # 依赖包列表
+├── instance/ # 数据库目录（SQLite）
+├── static/ # 静态文件
+│ ├── css/ # CSS样式文件
+│ │ └── style.css # 主样式文件
+│ └── fonts/ # 字体文件
+└── templates/ # HTML模板
+├── base.html # 基础模板
+├── index.html # 首页模板
+├── login.html # 登录页模板
+├── register.html # 注册页模板
+├── dashboard.html # 仪表盘页面
+└── add_score.html # 添加成绩模板
+
+
+## 最近开发进度与修改
+
+### 2023-03-22
+- 本地开发环境配置完成
+- 数据库从MySQL迁移到SQLite
+- 解决了Excel导出功能的错误
+
+### 待完成功能
+1. 【优先级高】修复科目名称 - 将"政治"改为"道法"
+2. 【优先级高】支持小数分数（0.5分）
+3. 【优先级中】添加密码重置功能
+4. 【优先级低】优化PDF导出的字体支持
+
+## 已知问题与解决方案
+
+### 1. Excel导出错误
+**问题描述**: 导出Excel时报Internal Server Error
+**解决方案**: 添加异常处理并简化Excel导出过程
+
+```python
+@app.route('/export_excel')
+@login_required
+def export_excel():
+    try:
+        # 获取并导出数据
+        # ...
+    except Exception as e:
+        print(f"Excel导出错误: {str(e)}")
+        flash('导出Excel时发生错误，请稍后再试')
+        return redirect(url_for('dashboard'))
+```
+
+### 2. 密码重置功能缺失
+**问题描述**: 用户忘记密码无法自助重置
+**临时解决方案**: 管理员通过Python交互式界面手动重置
+
+```python
+from app import app, db, User
+with app.app_context():
+    user = User.query.filter_by(username='用户名').first()
+    if user:
+        user.set_password('新密码')
+        db.session.commit()
+        print("密码已重置")
+```
+
+### 3. PDF字体支持问题
+**问题描述**: 在不同操作系统下PDF导出中文可能出现乱码
+**解决方案**: 添加字体文件到项目中，确保跨平台兼容
+
+## 部署注意事项
+
+### 服务器部署前的配置更改
+1. 修改数据库连接URI为MySQL
+2. 关闭调试模式
+3. 设置合适的日志级别
+
+### 文件权限设置
+```bash
+# 在服务器上设置正确的文件权限
+chown -R www:www /www/wwwroot/8.141.1.108/flask_app
+chmod -R 750 /www/wwwroot/8.141.1.108/flask_app
+```
+
+## 数据库备份与恢复
+
+### 本地数据库备份
+```bash
+# SQLite备份
+cp instance/exam.db backups/exam_db_$(date +%Y%m%d).db
+```
+
+### 服务器数据库备份
+通过宝塔面板进行备份，或使用命令行：
+```bash
+# MySQL备份
+mysqldump -u root -p 8_141_1_108 > 8_141_1_108_backup.sql
+```
+
+## 常见问题排查
+
+1. **数据库连接错误**:
+   - 检查数据库连接字符串
+   - 确保数据库服务正在运行
+   - 验证用户名和密码
+
+2. **导出功能错误**:
+   - 检查所需依赖包是否安装
+   - 确认文件写入权限
+   - 查看应用日志获取详细错误
+
+3. **用户认证问题**:
+   - 清除浏览器缓存和Cookie
+   - 检查用户表中的记录
+   - 验证密码哈希长度是否足够（应为255字符）

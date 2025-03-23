@@ -18,15 +18,13 @@ import secrets
 # 创建Flask应用
 app = Flask(__name__)
 
-# 设置密钥 - 在生产环境中使用环境变量
-# 尝试从环境变量获取密钥，如果没有则生成一个随机密钥
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_hex(16)
-
 # 确保instance文件夹存在
 if not os.path.exists('instance'):
     os.makedirs('instance')
 
-# 设置数据库连接
+# 应用配置
+app.config['SECRET_KEY'] = secrets.token_hex(16)
+app.config['DEBUG'] = True
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "instance", "exam.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
