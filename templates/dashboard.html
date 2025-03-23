@@ -358,61 +358,63 @@
                 <form id="editScoreForm" action="{{ url_for('edit_score') }}" method="post">
                     <div class="modal-body">
                         <input type="hidden" id="edit-score-id" name="score_id">
+                        <!-- 添加隐藏的subject字段 -->
+                        <input type="hidden" id="edit-subject" name="subject">
                         
                         <div class="mb-3">
-                            <label for="edit-subject" class="form-label">科目</label>
+                            <label for="edit-subject-display" class="form-label">科目</label>
                             <div style="margin: 20px 0; padding: 15px; background-color: #eaf7ff; border-radius: 10px; display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #d0e3ff;">
                                 <!-- 语文 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-语文" value="语文" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-语文" value="语文" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-语文" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">语文</label>
                                 </div>
                                 
                                 <!-- 数学 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-数学" value="数学" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-数学" value="数学" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-数学" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">数学</label>
                                 </div>
                                 
                                 <!-- 英语 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-英语" value="英语" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-英语" value="英语" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-英语" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">英语</label>
                                 </div>
                                 
                                 <!-- 物理 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-物理" value="物理" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-物理" value="物理" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-物理" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">物理</label>
                                 </div>
                                 
                                 <!-- 化学 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-化学" value="化学" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-化学" value="化学" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-化学" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">化学</label>
                                 </div>
                                 
                                 <!-- 生物 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-生物" value="生物" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-生物" value="生物" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-生物" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">生物</label>
                                 </div>
                                 
                                 <!-- 历史 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-历史" value="历史" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-历史" value="历史" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-历史" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">历史</label>
                                 </div>
                                 
                                 <!-- 地理 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-地理" value="地理" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-地理" value="地理" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-地理" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">地理</label>
                                 </div>
                                 
                                 <!-- 道法 -->
                                 <div style="margin: 8px; padding: 6px 12px; background-color: #e3f2fd; border-radius: 8px; display: inline-block; border: 1px solid #c1ddfd; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <input class="form-check-input" type="checkbox" id="subject-道法" value="道法" checked="" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
+                                    <input class="form-check-input subject-checkbox" type="radio" name="subject-option" id="subject-道法" value="道法" style="width: 22px; height: 22px; margin-right: 6px; cursor: pointer;">
                                     <label class="form-check-label" for="subject-道法" style="font-size: 20px; font-weight: 600; color: #0056b3; cursor: pointer; vertical-align: middle;">道法</label>
                                 </div>
                             </div>
@@ -658,6 +660,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('edit-exam-date').value = examDate;
             document.getElementById('edit-remarks').value = remarks;
             
+            // 选择对应的科目单选框
+            const subjectRadio = document.getElementById(`subject-${subject}`);
+            if (subjectRadio) {
+                subjectRadio.checked = true;
+            }
+            
             // 根据科目调整分数上限
             const scoreInput = document.getElementById('edit-score');
             if(['语文', '数学', '英语'].includes(subject)) {
@@ -672,20 +680,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 科目选择改变时调整分数上限
-    document.getElementById('edit-subject').addEventListener('change', function() {
-        const scoreInput = document.getElementById('edit-score');
-        if(['语文', '数学', '英语'].includes(this.value)) {
-            scoreInput.setAttribute('max', '120');
-            if(parseFloat(scoreInput.value) > 120) {
-                scoreInput.value = 120;
+    // 科目单选框改变时，更新隐藏的subject字段
+    const subjectCheckboxes = document.querySelectorAll('.subject-checkbox');
+    subjectCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('edit-subject').value = this.value;
+                
+                // 根据科目调整分数上限
+                const scoreInput = document.getElementById('edit-score');
+                if(['语文', '数学', '英语'].includes(this.value)) {
+                    scoreInput.setAttribute('max', '120');
+                    if(parseFloat(scoreInput.value) > 120) {
+                        scoreInput.value = 120;
+                    }
+                } else {
+                    scoreInput.setAttribute('max', '100');
+                    if(parseFloat(scoreInput.value) > 100) {
+                        scoreInput.value = 100;
+                    }
+                }
             }
-        } else {
-            scoreInput.setAttribute('max', '100');
-            if(parseFloat(scoreInput.value) > 100) {
-                scoreInput.value = 100;
-            }
-        }
+        });
     });
     
     // 删除成绩按钮点击事件
