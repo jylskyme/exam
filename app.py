@@ -121,6 +121,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # 获取原有的成绩数据
     scores_query = Score.query.filter_by(user_id=current_user.id).order_by(Score.exam_date.desc()).all()
     
     # 将成绩对象转换为可序列化的字典
@@ -134,7 +135,67 @@ def dashboard():
             'remarks': score.remarks or ''
         })
     
-    return render_template('dashboard.html', scores=scores)
+    # 添加新代码: 计算每个科目的统计数据
+    subject_stats = {}
+    all_subjects = set()
+    
+    for score in scores_query:
+        subject = score.subject
+        all_subjects.add(subject)
+        
+        # 初始化科目统计信息
+        if subject not in subject_stats:
+            subject_stats[subject] = {
+                'name': subject,
+                'count': 0,
+                'total': 0,
+                'max': 0,
+                'min': float('inf'),
+                'scores': []
+            }
+        
+        # 更新统计数据
+        stat = subject_stats[subject]
+        stat['count'] += 1
+        stat['total'] += score.score
+        stat['max'] = max(stat['max'], score.score)
+        stat['min'] = min(stat['min'], score.score) if score.score > 0 else stat['min']
+        stat['scores'].append(score.score)
+    
+    # 计算平均分和标准差
+    for subject, stat in subject_stats.items():
+        if stat['count'] > 0:
+            stat['avg'] = round(stat['total'] / stat['count'], 2)
+            
+            # 计算标准差
+            if stat['count'] > 1:
+                mean = stat['avg']
+                variance = sum((x - mean) ** 2 for x in stat['scores']) / stat['count']
+                stat['std_dev'] = round((variance ** 0.5), 2)
+            else:
+                stat['std_dev'] = 0
+                
+            # 计算满分率 (90分以上)
+            high_scores = sum(1 for s in stat['scores'] if s >= 90)
+            stat['high_rate'] = round((high_scores / stat['count']) * 100, 1)
+            
+            # 计算及格率 (60分以上)
+            pass_scores = sum(1 for s in stat['scores'] if s >= 60)
+            stat['pass_rate'] = round((pass_scores / stat['count']) * 100, 1)
+            
+            # 删除原始分数列表(不需要传递给前端)
+            del stat['scores']
+            
+            # 修正无穷小的最小值
+            if stat['min'] == float('inf'):
+                stat['min'] = 0
+    
+    # 将字典转换为列表，便于在模板中使用
+    subject_stats_list = list(subject_stats.values())
+    # 按照科目名称排序
+    subject_stats_list.sort(key=lambda x: x['name'])
+    
+    return render_template('dashboard.html', scores=scores, subject_stats=subject_stats_list)
 
 # 路由：添加成绩
 @app.route('/add_score', methods=['GET', 'POST'])
